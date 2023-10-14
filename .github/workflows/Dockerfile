@@ -8,10 +8,10 @@ ENV SCCACHE_CACHE_SIZE="2G"
 
 RUN echo -e "[llvmtoolset-build]\nname=LLVM Toolset 13.0 - Build\nbaseurl=https://buildlogs.centos.org/c7-llvm-toolset-13.0.x86_64/\ngpgcheck=0\nenabled=1" > /etc/yum.repos.d/llvmtoolset-build.repo
 # Install build dependencies
+RUN yum install --assumeyes python3
 RUN yum install --assumeyes centos-release-scl
 RUN yum install --assumeyes --nogpgcheck llvm-toolset-13.0
-RUN yum install --assumeyes rh-python38-python-devel rh-python38-python-pip
-SHELL [ "/usr/bin/scl", "enable", "llvm-toolset-13.0", "rh-python38" ]
+SHELL [ "/usr/bin/scl", "enable", "llvm-toolset-13.0"]
 
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install --upgrade cmake ninja sccache
@@ -32,10 +32,10 @@ RUN cmake -GNinja -Bbuild \
   -DCMAKE_INSTALL_PREFIX="/install" \
   -DLLVM_BUILD_UTILS=ON \
   -DLLVM_ENABLE_ASSERTIONS=ON \
-  -DMLIR_ENABLE_BINDINGS_PYTHON=ON \
   -DLLVM_ENABLE_PROJECTS=mlir \
   -DLLVM_INSTALL_UTILS=ON \
   -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU" \
   /source/llvm-project/llvm
 
 RUN ninja -C build install
+RUN rm -r /source/llvm-project/
