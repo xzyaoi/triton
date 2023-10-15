@@ -82,7 +82,7 @@ jobs:
         python3 -m pip install cmake ninja
 
     - name: Build toolchain for GLIBC 2.17
-      if: matrix.arch == 'ubuntu-22.04-x64'
+      if: matrix.arch == 'x64' && contains(fromJSON('["ubuntu"]'), matrix.target-os)
       run: |
         cd /tmp/
 
