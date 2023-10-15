@@ -84,9 +84,7 @@ jobs:
     - name: Build toolchain for GLIBC 2.17
       if: matrix.arch == 'x64' && contains(fromJSON('["ubuntu"]'), matrix.target-os)
       run: |
-        cd /tmp/
-
-        apt-get install -y automake bison build-essential flex gawk gperf \
+        sudo apt-get install -y automake bison build-essential flex gawk gperf \
           libtool patch texinfo wget ncurses-dev python3-dev python3-pip \
           libexpat1-dev git unzip help2man
         wget http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-1.26.0.tar.bz2
