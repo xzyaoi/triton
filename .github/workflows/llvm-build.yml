@@ -22,26 +22,16 @@ jobs:
 
       matrix:
         platform: [
-          ubuntu-20.04-x64,
           ubuntu-22.04-x64,
-          centos-7-x64,
           macos-x64,
           macos-arm64
         ]
 
         include:
           # Specify OS versions
-          - platform: ubuntu-20.04-x64
-            host-os: ubuntu-20.04
-            target-os: ubuntu
-            arch: x64
           - platform: ubuntu-22.04-x64
             host-os: ubuntu-22.04
             target-os: ubuntu
-            arch: x64
-          - platform: centos-7-x64
-            host-os: ubuntu-22.04
-            target-os: centos
             arch: x64
           - platform: macos-x64
             host-os: macos-12
@@ -91,6 +81,25 @@ jobs:
       run: |
         python3 -m pip install cmake ninja
 
+    - name: Build toolchain for GLIBC 2.17
+      if: matrix.arch == 'ubuntu-22.04-x64'
+      run: |
+        cd /tmp/
+
+        apt-get install -y automake bison build-essential flex gawk gperf \
+          libtool patch texinfo wget ncurses-dev python3-dev python3-pip \
+          libexpat1-dev git unzip help2man
+        wget http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-1.26.0.tar.bz2
+        tar xvf crosstool-ng-1.26.0
+        cd crosstool-ng-1.26.0
+        ./bootstrap
+        ./configure --prefix=/opt/crosstool-ng
+        make -j$(nproc)
+        sudo make install
+        ct-ng x86_64-centos7-linux-gnu
+        ct-ng build
+        export PATH=/opt/crosstool-ng/bin:$PATH
+
     - name: Configure, Build, Test, and Install LLVM (Ubuntu and macOS x64)
       if: matrix.arch == 'x64' && contains(fromJSON('["ubuntu", "macos"]'), matrix.target-os)
       run: >
@@ -137,19 +146,6 @@ jobs:
         ninja -C llvm-project/build install
 
         tar czf "${{ env.llvm_install_dir }}.tar.gz" "${{ env.llvm_install_dir }}"
-
-    - name: Configure, Build, Test, and Install LLVM (CentOS)
-      if: matrix.target-os == 'centos'
-      run: |
-        docker build --tag llvm-build --build-arg llvm_dir=llvm-project \
-          -f llvm-build/.github/workflows/Dockerfile .
-
-        # Create temporary container to copy cache and installed artifacts.
-        CONTAINER_ID=$(docker create llvm-build)
-        docker cp "${CONTAINER_ID}:/install" "${{ env.llvm_install_dir }}"
-        tar czf "${{ env.llvm_install_dir }}.tar.gz" "${{ env.llvm_install_dir }}"
-
-        docker rm "${CONTAINER_ID}"
 
     - name: Azure Login
       uses: azure/login@v1
