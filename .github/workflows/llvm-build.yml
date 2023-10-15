@@ -64,9 +64,9 @@ jobs:
         ./configure --prefix=/opt/crosstool-ng
         make -j$(nproc)
         sudo make install
+        export PATH=/opt/crosstool-ng/bin:$PATH
         ct-ng x86_64-centos7-linux-gnu
         ct-ng build
-        export PATH=/opt/crosstool-ng/bin:$PATH
 
     - name: Fetch LLVM Commit Hash
       run: |
