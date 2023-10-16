@@ -66,7 +66,7 @@ jobs:
         sudo make install
         export PATH=/opt/crosstool-ng/bin:$PATH
         ct-ng x86_64-centos7-linux-gnu
-        ct-ng build
+        ct-ng build | awk 'NR % 100 == 0'
 
     - name: Fetch LLVM Commit Hash
       run: |
