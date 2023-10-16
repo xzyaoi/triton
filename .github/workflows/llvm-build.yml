@@ -48,7 +48,11 @@ jobs:
         run: |
           sudo apt-get install -y debootstrap schroot
           sudo debootstrap cosmic /srv/chroot/cosmic http://old-releases.ubuntu.com/ubuntu
-          sudo chroot /srv/chroot/cosmic /bin/bash -c "apt-get install -y software-properties-common gcc g++""
+
+      - name: Chroot Deps
+        shell: chroot /srv/chroot/cosmic
+        run: |
+          sudo apt-get install -y software-properties-common gcc g++
 
       - name: Fetch LLVM Commit Hash
         run: |
