@@ -48,8 +48,7 @@ jobs:
         run: |
           sudo apt-get install -y debootstrap schroot
           sudo debootstrap cosmic /srv/chroot/cosmic http://old-releases.ubuntu.com/ubuntu
-          sudo chroot /srv/chroot/cosmic
-          sudo apt-get install -y software-properties-common gcc g++
+          sudo chroot /srv/chroot/cosmic /bin/bash -c "apt-get install -y software-properties-common gcc g++""
 
       - name: Fetch LLVM Commit Hash
         run: |
@@ -84,9 +83,9 @@ jobs:
       - name: Configure, Build, Test, and Install LLVM (Ubuntu and macOS x64)
         if: matrix.arch == 'x64' && contains(fromJSON('["ubuntu", "macos"]'), matrix.target-os)
         run: >
-          python3 -m pip install -r llvm-project/mlir/python/requirements.txt
+          sudo chroot /srv/chroot/cosmic /bin/bash -c python3 -m pip install -r llvm-project/mlir/python/requirements.txt
 
-          cmake -GNinja -Bllvm-project/build
+          sudo chroot /srv/chroot/cosmic /bin/bash -c cmake -GNinja -Bllvm-project/build
           -DCMAKE_BUILD_TYPE=Release
           -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
           -DCMAKE_INSTALL_PREFIX="${{ env.llvm_install_dir }}"
@@ -99,7 +98,7 @@ jobs:
           -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU"
           llvm-project/llvm
 
-          ninja -C llvm-project/build check-mlir install
+          sudo chroot /srv/chroot/cosmic /bin/bash -c ninja -C llvm-project/build check-mlir install
 
           tar czf "${{ env.llvm_install_dir }}.tar.gz" "${{ env.llvm_install_dir }}"
 
