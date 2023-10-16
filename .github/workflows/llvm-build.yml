@@ -18,7 +18,7 @@ jobs:
       fail-fast: true
 
       matrix:
-        platform: [ubuntu-22.04-x64, macos-x64, macos-arm64]
+        platform: [ubuntu-22.04-x64]
 
         include:
           # Specify OS versions
