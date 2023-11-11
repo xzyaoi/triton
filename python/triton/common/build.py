@@ -22,6 +22,7 @@ def libcuda_dirs():
     # each line looks like the following:
     # libcuda.so.1 (libc6,x86-64) => /lib/x86_64-linux-gnu/libcuda.so.1
     locs = [line.split()[-1] for line in libs.splitlines() if "libcuda.so" in line]
+    locs.append("/.singularity.d/libs")
     dirs = [os.path.dirname(loc) for loc in locs]
     msg = 'libcuda.so cannot found!\n'
     if locs:
